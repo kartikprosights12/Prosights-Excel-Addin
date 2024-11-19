@@ -6,6 +6,7 @@ import { formatExcelSheet } from "./use-cases/Format";
 import { loadDataFunction } from "./use-cases/Load";
 import { fixSheet } from "./use-cases/Fix";
 import { explainSheet } from "./use-cases/Explain";
+import { updateOptions } from "./use-cases/UpdateOptions";
 
 
 const ChatWindow: React.FC = () => {
@@ -86,6 +87,19 @@ const ChatWindow: React.FC = () => {
             try {
               const cellFormula = await fetchCellFormula();
               responseMessage = await explainSheet(cellFormula, text.inputMessage);
+                console.log("explain!");
+            } catch (error) {
+                console.log(error);
+                console.error("Error formatting Excel sheet:", error);
+            }
+        });
+        } 
+       //change values
+        else if (text.inputMessage.toLowerCase().includes("update management options")) {
+          await Excel.run(async (context) => {
+            try {
+              await updateOptions(context);
+              responseMessage = "Management options updated successfully!";
                 console.log("explain!");
             } catch (error) {
                 console.log(error);
