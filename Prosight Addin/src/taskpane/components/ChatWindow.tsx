@@ -114,7 +114,7 @@ const ChatWindow: React.FC = () => {
           await Excel.run(async (context) => {
             try {
               await friedChicken(context);
-              responseMessage = "Management options updated successfully!";
+              responseMessage = "Extracted successfully!";
                 console.log("explain!");
             } catch (error) {
                 console.log(error);

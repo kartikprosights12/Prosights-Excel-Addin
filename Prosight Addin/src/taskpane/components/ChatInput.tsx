@@ -144,7 +144,7 @@ export default function ChatInput({ onChatSend }: { onChatSend: (message: ChatMe
 export function ColouredExcelFormula({ selectedFormula }: { selectedFormula: string }) {
   return (
     <span className="text-xs">
-      {selectedFormula?.startsWith("=") ? (
+      {typeof selectedFormula === "string" && selectedFormula.startsWith("=") ? (
         <span>
           <span className="text-green-600">=</span>
           {selectedFormula

@@ -16,9 +16,6 @@ export const formatExcelSheet = async (context: Excel.RequestContext) => {
         "formulas",
         "rowCount",
         "columnCount",
-        "format/fill",
-        "format/font",
-        "format/numberFormat"
     ]);
     await context.sync();
 
@@ -43,20 +40,24 @@ export const formatExcelSheet = async (context: Excel.RequestContext) => {
         for (let col = 0; col < columnCount; col++) {
             const sourceCell = sourceRange.getCell(row, col);
             const targetCell = targetRange.getCell(row, col);
-          
+
             // Load cell-specific formatting properties
             sourceCell.format.fill.load("color");
             sourceCell.format.font.load(["bold", "color"]);
-            sourceCell.format.load("numberFormat"); // Load number format for the cell
+            sourceCell.load(["numberFormat"]);
             await context.sync();
 
             // Apply cell-specific formatting
             if (sourceCell.format.fill.color) {
                 targetCell.format.fill.color = sourceCell.format.fill.color;
             }
+
+            if (sourceCell.numberFormat) {
+                targetCell.numberFormat = sourceCell.numberFormat;
+            }
+           
             targetCell.format.font.bold = sourceCell.format.font.bold;
             targetCell.format.font.color = sourceCell.format.font.color;
-            targetCell.numberFormat = sourceCell.numberFormat;
         }
     }
 
