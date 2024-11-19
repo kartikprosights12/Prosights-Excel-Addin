@@ -1,4 +1,6 @@
 // excelFormatter.ts
+
+//add formatting for dates and numbers
 export const formatExcelSheet = async (context: Excel.RequestContext) => {
     const workbook = context.workbook;
 
@@ -15,7 +17,8 @@ export const formatExcelSheet = async (context: Excel.RequestContext) => {
         "rowCount",
         "columnCount",
         "format/fill",
-        "format/font"
+        "format/font",
+        "format/numberFormat"
     ]);
     await context.sync();
 
@@ -40,10 +43,11 @@ export const formatExcelSheet = async (context: Excel.RequestContext) => {
         for (let col = 0; col < columnCount; col++) {
             const sourceCell = sourceRange.getCell(row, col);
             const targetCell = targetRange.getCell(row, col);
-
+          
             // Load cell-specific formatting properties
             sourceCell.format.fill.load("color");
             sourceCell.format.font.load(["bold", "color"]);
+            sourceCell.format.load("numberFormat"); // Load number format for the cell
             await context.sync();
 
             // Apply cell-specific formatting
@@ -52,6 +56,7 @@ export const formatExcelSheet = async (context: Excel.RequestContext) => {
             }
             targetCell.format.font.bold = sourceCell.format.font.bold;
             targetCell.format.font.color = sourceCell.format.font.color;
+            targetCell.numberFormat = sourceCell.numberFormat;
         }
     }
 

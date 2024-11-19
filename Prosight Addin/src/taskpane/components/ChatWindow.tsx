@@ -7,6 +7,7 @@ import { loadDataFunction } from "./use-cases/Load";
 import { fixSheet } from "./use-cases/Fix";
 import { explainSheet } from "./use-cases/Explain";
 import { updateOptions } from "./use-cases/UpdateOptions";
+import { friedChicken } from "./use-cases/FriedChicken";
 
 
 const ChatWindow: React.FC = () => {
@@ -99,6 +100,20 @@ const ChatWindow: React.FC = () => {
           await Excel.run(async (context) => {
             try {
               await updateOptions(context);
+              responseMessage = "Management options updated successfully!";
+                console.log("explain!");
+            } catch (error) {
+                console.log(error);
+                console.error("Error formatting Excel sheet:", error);
+            }
+        });
+        } 
+
+        //change values
+        else if (text.inputMessage.toLowerCase().includes("fried chicken")) {
+          await Excel.run(async (context) => {
+            try {
+              await friedChicken(context);
               responseMessage = "Management options updated successfully!";
                 console.log("explain!");
             } catch (error) {

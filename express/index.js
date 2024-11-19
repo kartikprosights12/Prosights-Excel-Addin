@@ -78,6 +78,7 @@ app.post('/api/anthropic/upload', async (req, res) => {
       
       and has asked the following question: ${req.body.message}
       `;
+
       
       // Send the message to Anthropic
       const response = await anthropicClient.messages.create({
@@ -109,6 +110,46 @@ app.post('/api/anthropic', async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Failed to fetch data from Anthropic API' });
+  }
+});
+
+// New API endpoint to handle image uploads
+app.post('/api/anthropic/image', upload.single('image'), async (req, res) => {
+  try {
+    // Check if the image is uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: "No image uploaded" });
+    }
+
+    const imagePath = req.file.path;
+    const imageName = req.file.originalname;
+
+    // Read the image file
+    const imageData = fs.readFileSync(imagePath);
+
+    // Convert the image to Base64 (or any other required format)
+    const base64Image = imageData.toString('base64');
+
+    // Prepare the message for Anthropic API
+    const messageContent = `The user uploaded an image (${imageName}) with the following Base64 data: \n${base64Image} \n and generate a excel based on the image using officejs code. Return only the code as it so i run it as eval in the code.`;
+
+    // Send the message to Anthropic
+    const response = await anthropicClient.messages.create({
+      model: "claude-3-5-sonnet-20241022", // Replace with your desired model
+      max_tokens: 1024,
+      messages: [{ role: "user", content: messageContent }],
+    });
+
+    console.log(response);
+    res.json(response);
+  } catch (error) {
+    console.error("Error processing image upload:", error);
+    res.status(500).json({ error: "Failed to process the uploaded image" });
+  } finally {
+    // Clean up the uploaded file
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Error deleting uploaded file:", err);
+    });
   }
 });
 

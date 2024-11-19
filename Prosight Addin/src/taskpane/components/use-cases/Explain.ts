@@ -18,8 +18,8 @@ export const explainSheet = async (cellFormula: string, userMessage: string) => 
   
   Provide the explanation in simple, conversational language suitable for someone who may be new to Excel formulas. Return normal text format, not markdown.
   `;
-  
-        const response = await axios.post("https://60cb-49-36-189-20.ngrok-free.app/api/anthropic/upload", {
+      
+        const response = await axios.post(`${process.env.NGROK_URL}/api/anthropic/upload`, {
           message: prompt,
         });
         console.log('content');
