@@ -42,6 +42,8 @@ coverage/
 # Vue.js
 *.cache
 
+.env
+
 # Parcel
 .cache/
 

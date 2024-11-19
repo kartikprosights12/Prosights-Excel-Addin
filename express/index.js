@@ -52,15 +52,17 @@ app.get('/', (req, res) => {
 
 
 
-app.post('/api/anthropic/upload', upload.single("file"), async (req, res) => {
+app.post('/api/anthropic/upload', async (req, res) => {
   try {
       // Check if the file is uploaded
-      if (!req.file) {
-          return res.status(400).json({ error: "No file uploaded" });
-      }
+      // if (!req.file) {
+      //     return res.status(400).json({ error: "No file uploaded" });
+      // }
 
-      const filePath = req.file.path;
-      const fileName = req.file.originalname;
+      console.log(req.body);
+
+      const filePath =path.join(__dirname, 'ModelDemo2.xlsx');
+      const fileName = 'ModelDemo2.xlsx';
 
       // Read the Excel file
       const workbook = xlsx.readFile(filePath);
@@ -69,19 +71,20 @@ app.post('/api/anthropic/upload', upload.single("file"), async (req, res) => {
 
       // Convert the Excel data to a JSON string
       const fileContent = JSON.stringify(sheetData, null, 2);
+      console.log(fileContent);
 
       // Prepare the message for Anthropic API
-      const messageContent = `The user uploaded an Excel file (${fileName}) with the following data: \n${fileContent}`;
-
+      const messageContent = `The user uploaded an Excel file (${fileName}) with the following data: \n${fileContent}
+      
+      and has asked the following question: ${req.body.message}
+      `;
+      
       // Send the message to Anthropic
       const response = await anthropicClient.messages.create({
           model: "claude-3-5-sonnet-20241022", // Replace with your desired model
           max_tokens: 1024,
           messages: [{ role: "user", content: messageContent }],
       });
-
-      // Cleanup: Remove the uploaded file after processing
-      fs.unlinkSync(filePath);
 
       console.log(response);
       res.json(response);

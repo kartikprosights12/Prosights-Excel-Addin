@@ -5,6 +5,7 @@ import "./App.css";
 import { formatExcelSheet } from "./use-cases/Format";
 import { loadDataFunction } from "./use-cases/Load";
 import { fixSheet } from "./use-cases/Fix";
+import { explainSheet } from "./use-cases/Explain";
 
 
 const ChatWindow: React.FC = () => {
@@ -72,6 +73,20 @@ const ChatWindow: React.FC = () => {
               // Recalculate the current worksheet
               sheet.calculate(true);
                 console.log("calculation!");
+            } catch (error) {
+                console.log(error);
+                console.error("Error formatting Excel sheet:", error);
+            }
+        });
+        } 
+
+       //explainSheet questions
+        else if (text.inputMessage.toLowerCase().includes("explain")) {
+          await Excel.run(async () => {
+            try {
+              const cellFormula = await fetchCellFormula();
+              responseMessage = await explainSheet(cellFormula, text.inputMessage);
+                console.log("explain!");
             } catch (error) {
                 console.log(error);
                 console.error("Error formatting Excel sheet:", error);

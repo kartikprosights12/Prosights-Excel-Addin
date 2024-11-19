@@ -1,9 +1,6 @@
 import axios from "axios";
 
-export const explainSheet = async (context: Excel.RequestContext,  cellFormula: string, userMessage: string) => {
-
-    const workbook = context.workbook;
-    const sheet = workbook.worksheets.getActiveWorksheet();
+export const explainSheet = async (cellFormula: string, userMessage: string) => {
 
     try {
         const prompt = `You are an intelligent assistant skilled in explaining complex Excel formulas in a way that's easy to understand. 
@@ -22,10 +19,11 @@ export const explainSheet = async (context: Excel.RequestContext,  cellFormula: 
   Provide the explanation in simple, conversational language suitable for someone who may be new to Excel formulas. Return normal text format, not markdown.
   `;
   
-        const response = await axios.post("https://571d-182-156-1-250.ngrok-free.app/api/anthropic/upload", {
+        const response = await axios.post("https://60cb-49-36-189-20.ngrok-free.app/api/anthropic/upload", {
           message: prompt,
         });
-        console.error(response);
+        console.log('content');
+        console.log(response.data.content[0].text);
         // Access the data from the response
         return response.data.content[0].text || "No explanation found";
       } catch (error) {

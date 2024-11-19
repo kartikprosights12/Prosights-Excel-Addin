@@ -1,5 +1,6 @@
 import { ArrowReplyRegular, DocumentRegular, CopyRegular, PlayRegular } from "@fluentui/react-icons";
 import React from "react";
+import ReactMarkdown from "react-markdown";
 
 export type ChatMessageType = {
   inputMessage: string;
@@ -45,7 +46,7 @@ export function ChatMessage({ chatMessage }: { chatMessage: ChatMessageType }) {
               ))}
           </div>
         )}
-        <p className="text-xs">{chatMessage.inputMessage}</p>
+        <p className="text-xs"> <ReactMarkdown>{chatMessage.inputMessage}</ReactMarkdown> </p>
       </div>
       {/* Placeholder for AI response */}
       <p className="text-xs p-2">
