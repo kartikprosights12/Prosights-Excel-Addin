@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import devCerts from "office-addin-dev-certs";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
@@ -13,7 +14,7 @@ async function getHttpsOptions() {
 
 export default async (env, options) => {
   const dev = options.mode === "development";
-  return {
+  const config = {
     devtool: "source-map",
     entry: {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
@@ -33,7 +34,7 @@ export default async (env, options) => {
           test: /\.ts$/,
           exclude: /node_modules/,
           use: {
-            loader: "babel-loader"
+            loader: "babel-loader",
           },
         },
         {
@@ -54,8 +55,8 @@ export default async (env, options) => {
           },
         },
         {
-          test: /\.css$/,
-          use: ["style-loader", "css-loader"],
+          test: /\.css$/i,
+          use: ["style-loader", "css-loader", "postcss-loader"],
         },
       ],
     },
@@ -73,9 +74,13 @@ export default async (env, options) => {
           },
           {
             from: "manifest*.xml",
-            to: "[name][ext]",
+            to: "[name]" + "[ext]",
             transform(content) {
-              return dev ? content : content.toString().replace(new RegExp(urlDev, "g"), urlProd);
+              if (dev) {
+                return content;
+              } else {
+                return content.toString().replace(new RegExp(urlDev, "g"), urlProd);
+              }
             },
           },
         ],
@@ -101,4 +106,6 @@ export default async (env, options) => {
       port: process.env.npm_package_config_dev_server_port || 3000,
     },
   };
+
+  return config;
 };
