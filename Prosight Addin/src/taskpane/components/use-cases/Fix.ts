@@ -1,54 +1,23 @@
 export const fixSheet = async (context: Excel.RequestContext) => {
+  const workbook = context.workbook;
 
-    const workbook = context.workbook;
+  // Get the source and target sheets
+  const sheet = workbook.worksheets.getActiveWorksheet();
+  // Update the formula for cell (84, E)
+  const cellE = sheet.getCell(83, 4); // Row and column are 0-based (83 = 84 - 1, 4 = E)
+  cellE.formulas = [["=E82+E77"]]; // Replace with your desired formula
 
-    // Get the source and target sheets
-    const sourceSheet = workbook.worksheets.getItem("Model3");
-    const targetSheet = workbook.worksheets.getItem("Sheet1");
+  // Update the formula for cell (84, F)
+  const cellF = sheet.getCell(83, 5); // Row and column are 0-based (83 = 84 - 1, 5 = F)
+  cellF.formulas = [["=F82+F77"]]; // Replace with your desired formula
+  
+  const cellG = sheet.getCell(83, 6); // Row and column are 0-based (83 = 84 - 1, 5 = F)
+  cellG.formulas = [["=G82+G77"]]; // Replace with your desired formula
+  
+  const cellH = sheet.getCell(83, 7); // Row and column are 0-based (83 = 84 - 1, 5 = F)
+  cellH.formulas = [["=H82+H77"]]; // Replace with your desired formula
+  sheet.calculate(true);
+  await context.sync();
 
-    // Get the range with data in the source sheet
-    const sourceRange = sourceSheet.getUsedRange();
-    sourceRange.load([
-        "address",
-        "values",
-        "formulas",
-        "rowCount",
-        "columnCount",
-        "format/fill/color",
-        "format/font/bold",
-        "format/font/color"
-    ]);
-    await context.sync();
-
-    if (!sourceRange.address) {
-        console.error("Source range is empty or invalid.");
-        return;
-    }
-
-    console.log("Source range address:", sourceRange.address);
-    console.log("Source range fill color:", sourceRange.format.fill.color);
-
-    // Define the target range using the same dimensions as the source range
-    const rowCount = sourceRange.rowCount;
-    const columnCount = sourceRange.columnCount;
-    const targetRange = targetSheet.getRangeByIndexes(0, 0, rowCount, columnCount);
-
-    // Copy data and formulas to the target sheet
-    targetRange.values = sourceRange.values;
-    targetRange.formulas = sourceRange.formulas;
-
-    // Copy fill color if it exists
-    if (sourceRange.format.fill.color) {
-        targetRange.format.fill.color = sourceRange.format.fill.color;
-    } else {
-        console.log("No fill color found in the source range.");
-    }
-
-    // Copy font properties
-    targetRange.format.font.bold = sourceRange.format.font.bold;
-    targetRange.format.font.color = sourceRange.format.font.color;
-
-    await context.sync();
-
-    console.log("Data and formatting copied successfully.");
-}
+  console.log("Data and formatting copied successfully.");
+};

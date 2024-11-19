@@ -33,6 +33,19 @@ const Chat: React.FC = () => {
           }
       });
       }  
+
+      //format data case
+      else if (text.toLowerCase().includes("format")) {
+        await Excel.run(async (context) => {
+          try {
+              await formatExcelSheet(context);
+              console.log("Excel sheet formatted successfully!");
+          } catch (error) {
+              console.log(error);
+              console.error("Error formatting Excel sheet:", error);
+          }
+      });
+      }  
       
       //borken and fix case
       else if (text.toLowerCase().includes("broken") && text.toLowerCase().includes("help me") && text.toLowerCase().includes("fix")) {
@@ -47,18 +60,22 @@ const Chat: React.FC = () => {
       });
       } 
 
-      //format case
-      else if (text.toLowerCase().includes("format")) {
-        await Excel.run(async (context) => {
-          try {
-              await formatExcelSheet(context);
-              console.log("Excel sheet formatted successfully!");
-          } catch (error) {
-              console.log(error);
-              console.error("Error formatting Excel sheet:", error);
-          }
-      });
-      } 
+        //borken and fix case
+        else if (text.toLowerCase().includes("calculate")) {
+          await Excel.run(async (context) => {
+            try {
+              // Get the active worksheet
+              const sheet =context.workbook.worksheets.getActiveWorksheet();
+
+              // Recalculate the current worksheet
+              sheet.calculate(true);
+                console.log("calculation!");
+            } catch (error) {
+                console.log(error);
+                console.error("Error formatting Excel sheet:", error);
+            }
+        });
+        } 
 
       if (cellFormula) {
         // Add the formula to the chat as an explanation

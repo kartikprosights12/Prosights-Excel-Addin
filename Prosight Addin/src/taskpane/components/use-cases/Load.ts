@@ -34,26 +34,8 @@ export const loadDataFunction = async (context: Excel.RequestContext) => {
     // Copy values and formulas
     targetRange.values = sourceRange.values;
     targetRange.formulas = sourceRange.formulas;
-
-    // Iterate over each cell to copy formatting
-    for (let row = 0; row < rowCount; row++) {
-        for (let col = 0; col < columnCount; col++) {
-            const sourceCell = sourceRange.getCell(row, col);
-            const targetCell = targetRange.getCell(row, col);
-
-            // Load cell-specific formatting properties
-            sourceCell.format.fill.load("color");
-            sourceCell.format.font.load(["bold", "color"]);
-            await context.sync();
-
-            // Apply cell-specific formatting
-            if (sourceCell.format.fill.color) {
-                targetCell.format.fill.color = sourceCell.format.fill.color;
-            }
-            targetCell.format.font.bold = sourceCell.format.font.bold;
-            targetCell.format.font.color = sourceCell.format.font.color;
-        }
-    }
+    
+    targetSheet.calculate(true);
 
     await context.sync();
 

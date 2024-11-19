@@ -1,85 +1,61 @@
 // excelFormatter.ts
-
 export const formatExcelSheet = async (context: Excel.RequestContext) => {
-    const sheet = context.workbook.worksheets.getActiveWorksheet();
+    const workbook = context.workbook;
 
-    // Title and Operating Case
-    const titleRange = sheet.getRange("B2");
-    titleRange.values = [["LBO Model"]];
-    titleRange.format.font.bold = true;
-    titleRange.format.font.size = 14;
+    // Get the source and target sheets
+    const sourceSheet = workbook.worksheets.getItem("Model1");
+    const targetSheet = workbook.worksheets.getActiveWorksheet();
 
-    const operatingCaseRange = sheet.getRange("B4:C4");
-    operatingCaseRange.values = [["Operating Case"]];
-    operatingCaseRange.merge(); // Merge cells
-    operatingCaseRange.format.horizontalAlignment = "Left";
+    // Get the range with data in the source sheet
+    const sourceRange = sourceSheet.getUsedRange();
+    sourceRange.load([
+        "address",
+        "values",
+        "formulas",
+        "rowCount",
+        "columnCount",
+        "format/fill",
+        "format/font"
+    ]);
+    await context.sync();
 
-    sheet.getRange("D4").values = [["3"]];
-    sheet.getRange("D4").format.font.bold = true;
-    sheet.getRange("D4").format.font.color = "blue";
+    if (!sourceRange.address) {
+        console.error("Source range is empty or invalid.");
+        return;
+    }
 
-    // Formatting for the Operating Section
-    const operatingHeaders = sheet.getRange("B7:B20");
-    operatingHeaders.values = [
-        ["Operating"],
-        ["# New Restaurant Growth"],
-        ["AUV / restaurant"],
-        ["AUV % Growth"],
-        ["% Gross Margin"],
-        [""],
-        ["Rent Expense"],
-        ["Owners Base Salary"],
-        ["Owners Revenue Share"],
-        ["Growth Capex"],
-        ["Maint Capex"],
-        ["Operating Expenses"]
-    ];
-    operatingHeaders.format.font.bold = true;
+    console.log("Source range address:", sourceRange.address);
 
-    // Scenarios
-    const scenariosRange = sheet.getRange("F6:H6");
-    scenariosRange.values = [["Downside", "Base", "Upside"]];
-    scenariosRange.format.fill.color = "#E6E6E6"; // Light gray
-    scenariosRange.format.font.bold = true;
+    // Define the target range using the same dimensions as the source range
+    const rowCount = sourceRange.rowCount;
+    const columnCount = 8;
+    const targetRange = targetSheet.getRangeByIndexes(0, 0, rowCount, columnCount);
 
-    // Populate scenario data
-    const scenarioData = sheet.getRange("F8:H20");
-    scenarioData.values = [
-        ["2", "6", "10"],
-        ["$1,500", "$1,500", "$1,500"],
-        ["0.0%", "0.0%", "0.0%"],
-        ["70.0%", "70.0%", "70.0%"],
-        ["", "", ""],
-        ["$75/rest.", "$75/rest.", "$75/rest."],
-        ["$500/own.", "$500/own.", "$500/own."],
-        ["0.5%", "0.5%", "0.5%"],
-        ["$300/rest.", "$300/rest.", "$300/rest."],
-        ["$10/rest.", "$10/rest.", "$10/rest."],
-        ["$650/rest.", "$650/rest.", "$650/rest."]
-    ];
-    scenarioData.format.font.color = "blue";
+    // Copy values and formulas
+    targetRange.values = sourceRange.values;
+    targetRange.formulas = sourceRange.formulas;
+    targetRange.format.autofitColumns();
+    // Iterate over each cell to copy formatting
+    for (let row = 0; row < rowCount; row++) {
+        for (let col = 0; col < columnCount; col++) {
+            const sourceCell = sourceRange.getCell(row, col);
+            const targetCell = targetRange.getCell(row, col);
 
-    // Apply additional formatting (e.g., Operating Assumptions)
-    const assumptionsHeader = sheet.getRange("B22");
-    assumptionsHeader.values = [["x Operating Assumptions"]];
-    assumptionsHeader.format.font.bold = true;
+            // Load cell-specific formatting properties
+            sourceCell.format.fill.load("color");
+            sourceCell.format.font.load(["bold", "color"]);
+            await context.sync();
 
-    const ongoingHeader = sheet.getRange("F22");
-    ongoingHeader.values = [["Ongoing Assumptions"]];
-    ongoingHeader.format.font.bold = true;
-
-    const ongoingData = sheet.getRange("F24:H28");
-    ongoingData.values = [
-        ["Tax Rate", "40.0%"],
-        ["Min Cash", "$2,000.0"],
-        ["Depreciation", "1.0% of sales"],
-        ["Starting restaurants", "100"],
-        ["Opex", "$70,000.0"]
-    ];
-
-    // Global formatting
-    sheet.getRange("B2:H28").format.horizontalAlignment = "Center";
-    sheet.getRange("B2:H28").format.wrapText = true;
+            // Apply cell-specific formatting
+            if (sourceCell.format.fill.color) {
+                targetCell.format.fill.color = sourceCell.format.fill.color;
+            }
+            targetCell.format.font.bold = sourceCell.format.font.bold;
+            targetCell.format.font.color = sourceCell.format.font.color;
+        }
+    }
 
     await context.sync();
+
+    console.log("Data and formatting copied successfully.");
 };
